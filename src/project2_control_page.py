@@ -38,7 +38,7 @@ def show():
     elif selected_page == "Đề xuất xe theo yêu cầu":
         de_xuat_theo_query()
     elif selected_page == "Nhóm xe theo đặc điểm":
-        group_xe_theo_dac_diem()
+        group_xe_theo_dac_diem2()
 # ============================================================
 # HÀM XỬ LÝ DỰ ĐOÁN GIÁ XE 
 # ============================================================
@@ -346,3 +346,103 @@ def group_xe_theo_dac_diem():
     for c in sorted(df["cluster_demo"].unique()):
         st.markdown(f"### 🔹 Cluster {c}")
         st.dataframe(df[df["cluster_demo"] == c].head(5)[["tieu_de", "thuong_hieu", "dong_xe", "gia"]])
+
+def group_xe_theo_dac_diem2():
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    from sklearn.decomposition import PCA
+    from sklearn.manifold import TSNE
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    st.set_page_config(page_title="t-SNE Cluster Visualization", layout="wide")
+
+    st.title("🔍 t-SNE Visualization for Motorbike Clustering")
+    
+    uploaded_file = "./data/data_motobikes_cleaned_content_wt.csv"
+    df = pd.read_csv(uploaded_file)    
+    st.write(df.head())
+
+    # ==============================
+    # 2. Select numeric features
+    # ==============================
+    st.subheader("⚙️ Select numeric features for visualization")
+
+    numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
+
+    selected_features = st.multiselect(
+        "Chọn các cột để chạy PCA + t-SNE:",
+        numeric_cols,
+        default=numeric_cols[:6]  # chọn một số cột đầu tiên làm mặc định
+    )
+
+    cluster_col = st.selectbox(
+        "Chọn cột cluster để phân màu:",
+        df.columns,
+        index=list(df.columns).index("cluster") if "cluster" in df.columns else 0
+    )
+
+    if st.button("🚀 Run PCA + t-SNE"):
+        if len(selected_features) < 2:
+            st.error("⚠️ Cần chọn ít nhất 2 đặc trưng!")
+            st.stop()
+
+        X = df[selected_features].fillna(0).values
+
+        # ==============================
+        # 3. PCA reduction (50D)
+        # ==============================
+        st.write("🔄 Running PCA...")
+        pca = PCA(n_components=min(50, X.shape[1]), random_state=42)
+        X_pca = pca.fit_transform(X)
+
+        # ==============================
+        # 4. t-SNE Reduction
+        # ==============================
+        perplexity = st.slider("Perplexity", 5, 50, 30)
+
+        st.write("🎨 Running t-SNE (this may take a moment)...")
+        tsne = TSNE(
+            n_components=2,
+            perplexity=perplexity,
+            learning_rate="auto",
+            init="pca",
+            random_state=42
+        )
+
+        X_tsne = tsne.fit_transform(X_pca)
+
+        tsne_df = pd.DataFrame({
+            "tsne_1": X_tsne[:, 0],
+            "tsne_2": X_tsne[:, 1],
+            "cluster": df[cluster_col].astype(str)
+        })
+
+        # ==============================
+        # 5. Plot t-SNE
+        # ==============================
+        st.subheader("📌 t-SNE Scatter Plot")
+
+        plt.figure(figsize=(10, 7))
+        sns.scatterplot(
+            data=tsne_df,
+            x="tsne_1",
+            y="tsne_2",
+            hue="cluster",
+            palette="tab10",
+            s=20,
+            alpha=0.8
+        )
+        plt.title("t-SNE Visualization of Motorbike Clusters")
+        plt.xlabel("t-SNE 1")
+        plt.ylabel("t-SNE 2")
+        plt.legend(title="Cluster")
+
+        st.pyplot(plt)
+
+        # ==============================
+        # 6. Show cluster distribution
+        # ==============================
+        st.subheader("📊 Cluster Distribution")
+        st.bar_chart(tsne_df["cluster"].value_counts())

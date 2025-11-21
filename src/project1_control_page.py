@@ -140,7 +140,7 @@ def du_doan_gia_xe():
     xuat_xu = st.selectbox("Xuất xứ", df['xuat_xu'].unique())    
     
     # Button dự đoán giá
-    du_doan_gia = st.button("Dự đoán giá")
+    du_doan_gia = st.button("💰 Dự đoán giá")
         
     if du_doan_gia:
         st.write("---")
@@ -240,7 +240,7 @@ def phat_hien_xe_bat_thuong():
     xuat_xu = st.selectbox("Xuất xứ", df['xuat_xu'].unique())
 
     # Button dò tìm bất thường
-    kiem_tra_bat_thuong = st.button("Kiểm tra bất thường")
+    kiem_tra_bat_thuong = st.button("🔍 Kiểm tra bất thường")
 
     if kiem_tra_bat_thuong:
         # Input tin đăng
@@ -296,5 +296,46 @@ def list_xe_bat_thuong():
     st.write(f"##### Tổng số xe máy bất thường: {tong_so_xe_bat_thuong} xe")    
     # st.dataframe(data_anomalies, height=2600)
     st.dataframe(data_anomalies, height=960)
+
+    """
+    # Load dữ liệu
+    df_results = pd.read_csv("./data/results_with_anomalies.csv")    
+    data_anomalies = df_results[df_results['anomaly_flag'] == 1].reset_index(drop=True)
+
+    tong_so_xe_bat_thuong = len(data_anomalies)
+    st.write(f"##### Tổng số xe máy bất thường: **{tong_so_xe_bat_thuong} xe**")
+
+    # ------------------------------
+    # Pagination setup
+    # ------------------------------
+    items_per_page = 12
+    total_pages = math.ceil(len(data_anomalies) / items_per_page)
+
+    # Lưu trạng thái trang hiện tại
+    if "current_page" not in st.session_state:
+        st.session_state.current_page = 1
+
+    # Nút chuyển trang
+    col1, col2, col3 = st.columns([1, 2, 1])
+
+    with col1:
+        if st.button("⬅️ Previous") and st.session_state.current_page > 1:
+            st.session_state.current_page -= 1
+
+    with col3:
+        if st.button("Next ➡️") and st.session_state.current_page < total_pages:
+            st.session_state.current_page += 1
+
+    # Tính vị trí hiển thị
+    start_idx = (st.session_state.current_page - 1) * items_per_page
+    end_idx = start_idx + items_per_page
+    df_page = data_anomalies.iloc[start_idx:end_idx]
+
+    # Hiển thị
+    st.write(f"Trang **{st.session_state.current_page} / {total_pages}**")
+    st.dataframe(df_page, height=700, use_container_width=False)
+    """
+
+   
 # ============================================================
     

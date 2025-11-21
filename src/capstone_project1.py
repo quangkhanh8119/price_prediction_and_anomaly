@@ -11,7 +11,7 @@ def show():
     # TITLE
     # ============================================================
     # st.title("CAPSTONE PROJECT – Dự đoán Giá Xe Máy & Phát hiện Giá Bất Thường")
-    UIComponents.centered_title("Capstone Project", "Dự đoán Giá Xe Máy & Phát hiện Giá Bất Thường")
+    UIComponents.centered_title("Capstone Project", "Dự Đoán Giá Xe Máy & Phát hiện Giá Bất Thường")
     st.write("---")
 
     # ============================================================
@@ -19,8 +19,7 @@ def show():
     # ============================================================
     st.header("1. Giới thiệu")
     st.markdown("""
-    Dự án tập trung phân tích và mô hình hoá dữ liệu **xe máy đã qua sử dụng từ Chợ Tốt**, 
-    nhằm giải quyết hai bài toán quan trọng:
+    Dự án tập trung phân tích và mô hình hoá dữ liệu **xe máy đã qua sử dụng trên ChợTốt**, nhằm giải quyết hai bài toán chính:
 
     ### 🔹 Bài toán 1 – *Price Prediction*
     Dự đoán **giá hợp lý** của một chiếc xe máy dựa trên thông tin đầu vào  
@@ -67,20 +66,21 @@ def show():
 
     ### ✔ Làm sạch dữ liệu
     - Chuẩn hóa văn bản (thương hiệu, dòng xe, mô tả)
-    - Xử lý ký tự đặc biệt, viết tắt, lỗi chính tả
+    - Loại bỏ emoji, ký tự đặc biệt, viết tắt, lỗi chính tả
+    - Chuẩn hóa giá về VNĐ
 
-    ### ✔ Xử lý biến categorical
+    ### ✔ Xử lý categorical
     - One-Hot Encoding / Ordinal Encoding
-    - Không chuyển `dung_tich_xe` sang số → giữ dạng chuỗi
+    - Giữ "dung_tich_xe" dạng chuỗi → tránh mất thông tin phân loại
 
     ### ✔ Xử lý numeric
-    - Chuẩn hóa `so_km_da_di`, `nam_dang_ky`
-    - Xử lý ngoại lệ, outlier theo phân phối
+    - Chuyển đổi 'so_km_da_di', 'nam_dang_ky'
+    - Xử lý ngoại lệ, loại outlier mạnh
 
     ### ✔ Tạo thêm đặc trưng:
-    - tuổi xe (year_now – nam_dang_ky)
-    - khoảng giá min/max
-    - phân lớp số km
+    - Tuổi xe (year_now – nam_dang_ky)
+    - Tự tính khoảng giá tham chiếu
+    - Phân lớp số km đã đi
     """)
 
     st.write("---")
@@ -92,7 +92,7 @@ def show():
 
     st.subheader("Mục tiêu")
     st.markdown("""
-    Dự đoán **giá bán hợp lý** dựa trên 8 trường thông tin:
+    Dự đoán **giá bán hợp lý** dựa trên 8 8thuộc tính đầu vào:
 
     | Trường | Ý nghĩa |
     |--------|---------|
@@ -109,8 +109,8 @@ def show():
     st.subheader("💡 Mô hình tốt nhất")
     st.markdown("""
     - **LightGBM Regressor** hoặc **XGBoost Regressor**
-    - Dự đoán trên target đã chuẩn hoá: `log1p(gia)`
-    - Sai số MAPE: **~8–12%**
+    - Target dùng `log1p(gia)` → ổn định phân phối
+    - Sai số MAPE: **~8–12%, R² cao**
     """)
 
     st.subheader("Hàm dự đoán giá (Price Prediction)")
@@ -157,7 +157,7 @@ def show():
     print(f"Giá dự đoán: {price:,.0f} VND")
     """, language="python")
 
-    st.subheader("Lưu kết quả dự đoán – `regression_predictions.csv`")
+    st.subheader("Lưu kết quả dự đoán → `regression_predictions.csv`")
     st.code("""
     df_save = pd.DataFrame([input_vehicle])
     df_save['gia_du_doan'] = price
@@ -176,7 +176,7 @@ def show():
     Xác định giá rao bán có:
     - **Bình thường (NORMAL)**
     - **Bất thường (ANOMALY)**  
-    Dựa vào mô hình học không giám sát.
+    Dựa vào mô hình học không giám sát (`Unsupervised`).
     """)
 
     st.subheader("💡 Mô hình tốt nhất")

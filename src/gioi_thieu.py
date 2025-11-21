@@ -17,7 +17,7 @@ def show():
 
     # st.title("🌟 GIỚI THIỆU DỰ ÁN MÔN HỌC")    
     # st.subheader("Phân tích & xây dựng mô hình hóa dữ liệu xe máy đã qua sử dụng – Chợ Tốt")
-    ui.centered_title_normal("Giới Thiệu Dự Án Môn Học","Phân tích & xây dựng mô hình hóa dữ liệu xe máy đã qua sử dụng trên ChợTốt")
+    ui.centered_title_normal("Phân tích & xây dựng hệ thống mô hình hóa dữ liệu xe máy đã qua sử dụng trên ChợTốt")
 
     st.markdown("---")
 
@@ -35,7 +35,7 @@ def show():
 
     # Tổng quan
     st.markdown("""
-    ### 🚀 Tổng Quan
+    ### 🚀 Tổng Quan Dự Án
     Dự án được triển khai dựa trên bộ dữ liệu thực tế từ **Chợ Tốt**, bao gồm thông tin về hàng chục nghìn tin rao bán xe máy.  
     Nhóm đã thực hiện 4 bài toán chính nhằm phân tích dữ liệu, xây dựng mô hình học máy và đề xuất giải pháp thực tế.
     """)
@@ -44,32 +44,34 @@ def show():
 
     # Bài toán 1
     st.markdown("""
-    ### 🏷️ **Dự đoán giá xe máy - Price Prediction**
-    Xây dựng mô hình hồi quy (Regression Model) dự đoán giá bán hợp lý dựa trên các đặc trưng như:
+    ### 🏷️ **Dự đoán giá xe máy - Price Prediction**    
+    Xây dựng mô hình hồi quy Machine Learning để dự đoán **giá bán hợp lý** dựa trên các đặc trưng:
     - Thương hiệu, dòng xe, loại xe
     - Dung tích, số km đã đi
     - Năm đăng ký, tình trạng, xuất xứ  
 
-    👉 *Ứng dụng*: hỗ trợ người bán định giá, giúp người mua tham khảo mức giá thị trường.
+    👉 *Ứng dụng*: Hỗ trợ người bán định giá đúng, giúp người mua tham khảo giá thị trường chính xác.
     """)
 
     # Bài toán 2
     st.markdown("""
     ### 🚨 **Phát hiện giá bất thường - Anomaly Detection**
-    Sử dụng kết quả dự đoán từ mô hình giá (Regression) và phân tích độ lệch để nhận diện các tin đăng có mức giá rao bán **bình thường** hay **bất thường**
+    Sử dụng mô hình dự đoán giá + nhiều kỹ thuật outlier detection để nhận diện các tin đăng có mức giá rao bán **bình thường** hay **bất thường**
+    - Rao quá rẻ bất thường
+    - Rao quá đắt so với thị trường 
 
-    👉 *Ứng dụng*: cảnh báo các tin đăng quá rẻ hoặc quá đắt, tăng tính minh bạch, hạn chế gian lận và cảnh báo tin đăng bất thường.
-    """)
-
+    👉 *Ứng dụng*: Cảnh báo tin đăng bất thường, tăng tính minh bạch & phát hiện gian lận.
+    """
+)
     # Bài toán 3
     st.markdown("""
     ### ⭐ **Gợi ý xe tương tự - Recommendation System**
-    Hệ thống gợi ý xe tương tự dựa trên:
-    - Nội dung mô tả xe      
-    - Khoảng cách vector giữa các tin
-    - Đặc trưng kỹ thuật                
-
-    👉 *Ứng dụng*: hỗ trợ người dùng nhanh chóng tìm được mẫu xe phù hợp nhu cầu..
+    Gợi ý xe tương tự dựa trên đặc trưng kỹ thuật của xe & nội dung mô tả:
+    - Thông tin kỹ thuật xe                
+    - Khoảng cách vector đặc trưng
+    - Nội dung mô tả xe
+    
+    👉 *Ứng dụng*: hỗ trợ người dùng nhanh chóng tìm được mẫu xe phù hợp nhu cầu.
     """)
 
     # Bài toán 4
@@ -79,7 +81,7 @@ def show():
     - Phân nhóm theo thương hiệu, loại xe, dung tích
     - Phân nhóm theo mức giá, năm đăng ký
 
-    👉 *Ứng dụng*: hiểu rõ phân khúc thị trường và cá nhân hóa trải nghiệm người dùng
+    👉 *Ứng dụng*: Hiểu rõ phân khúc thị trường và cá nhân hóa trải nghiệm người dùng
     """)
 
     st.markdown("---")
@@ -95,9 +97,17 @@ def show():
     │   ├── logo.png    
     │
     ├── data/
-    │   ├── data_motobikes.xlsx    
+    │   ├── data_motobikes_cleaned.csv
+    │   ├── data_motobikes_cleaned_content_wt.csv
+    │   ├── result_regression_predictions.csv
+    │   ├── results_with_anomalies.csv
+    │   ├── vietnamese-stopwords.txt
+    │
+    ├── models/
     │   ├── model_regression_best.pkl
-    │   ├── model_anomaly_best.pkl
+    │   ├── cosine_sim.pkl
+    │   ├── tfidf_matrix.pkl
+    │   ├── tfidf_vectorizer.pkl    
     │
     ├── src/
     │   ├── gioi_thieu.py
