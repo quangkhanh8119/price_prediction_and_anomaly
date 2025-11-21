@@ -19,7 +19,7 @@ MENU = {
     "Capstone Project 2": "src.capstone_project2",
     "Thực hiện Project 1": "src.project1_control_page",
     "Thực hiện Project 2": "src.project2_control_page",
-    # "UI Components": "ui.ui_components_demo",
+    "UI Components": "ui.ui_components_demo",
 }
 
 # Sidebar

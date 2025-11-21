@@ -286,7 +286,7 @@ def phat_hien_xe_bat_thuong():
 # ============================================================
 
 def list_xe_bat_thuong():    
-    ui.centered_text("Thống kê danh sách xe máy bất thường", color="#1f77b4", size="28px")
+    ui.centered_text("Thống kê danh sách xe máy bất thường", color="#1f77b4", size="36px")
 
     # Load dư liệu từ file results_with_anomalies.csv
     df_results = pd.read_csv("./data/results_with_anomalies.csv")    

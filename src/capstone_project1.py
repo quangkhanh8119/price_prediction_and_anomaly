@@ -10,7 +10,8 @@ def show():
     # ============================================================
     # TITLE
     # ============================================================
-    st.title("CAPSTONE PROJECT – Dự đoán Giá Xe Máy & Phát hiện Giá Bất Thường")
+    # st.title("CAPSTONE PROJECT – Dự đoán Giá Xe Máy & Phát hiện Giá Bất Thường")
+    UIComponents.centered_title("Capstone Project", "Dự đoán Giá Xe Máy & Phát hiện Giá Bất Thường")
     st.write("---")
 
     # ============================================================

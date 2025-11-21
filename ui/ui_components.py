@@ -62,6 +62,33 @@ class UIComponents:
             """,
             unsafe_allow_html=True
         )
+
+    @staticmethod
+    def section_title(title: str, subtitle: str = "", content: str = "", color: str = "#2b8acc"):
+        """
+        Header cho section/phần
+        
+        Args:
+            title: Tiêu đề section
+            subtitle: Mô tả ngắn
+            color: Màu chủ đạo
+        """
+        st.markdown(
+            f"""
+            <div style="
+                padding: 10px;
+                border-left: 5px solid {color};
+                background: #f8f9fa;
+                border-radius: 6px;
+                margin: 2px 0;
+            ">
+                <h3 style="color: {color}; margin: 0;">{title}</h3>
+                {f'<h5 style="color: #555; margin-top: 5px; margin-bottom: 0;">{subtitle}</h5>' if subtitle else ''}
+                {f'<p style="color: #555; margin-top: 5px; margin-bottom: 0;">{content}</p>' if content else ''}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     
     @staticmethod
     def centered_title(title: str, subtitle: str = ""):
