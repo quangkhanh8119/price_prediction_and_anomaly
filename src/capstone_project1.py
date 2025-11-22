@@ -6,7 +6,10 @@ st.set_page_config(page_title="Capstone Project – Giá Xe Máy", layout="wide"
 def show():
     # Set page layout    
     UIComponents.set_page_layout(width=960, hide_branding=False)
-    
+
+    # Show logo
+    UIComponents.show_logo_conditional('capstone_project2', width=960, centered=False)
+
     # ============================================================
     # TITLE
     # ============================================================
@@ -182,7 +185,7 @@ def show():
     st.subheader("💡 Mô hình tốt nhất")
     st.markdown("""
     - **Isolation Forest**
-    - hoặc AutoEncoder Tree-Based
+    - hoặc **AutoEncoder Tree-Based**
     """)
 
     st.subheader("Hàm kiểm tra giá bất thường")

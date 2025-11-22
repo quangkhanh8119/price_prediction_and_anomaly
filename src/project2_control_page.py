@@ -85,11 +85,20 @@ def display_recommended_bikes(recommended_bikes, cols=5):
                 bike = recommended_bikes.iloc[i + j]
                 with col:
                     bike_description = bike['mo_ta_chi_tiet']
+                    thuong_hieu = bike['thuong_hieu']
+                    dong_xe = bike['dong_xe']
+                    nam_dang_ky = bike['nam_dang_ky']
+                    so_km_da_di = bike['so_km_da_di']
                     truncated_description = ' '.join(bike_description.split()[:100]) + '...'
                     ui.card(
                         title=f"Xe Máy {i + j + 1}", 
-                        content=f"<b>{bike['tieu_de']}</b><br><i>{truncated_description}</i>", 
-                        color="#3874b4", icon="🎯")
+                        content=f"<b>{bike['tieu_de']}</b></br></br><i>{truncated_description}</i></br></br> \
+                        Thương hiệu: {thuong_hieu}</br> \
+                        Dòng xe: {dong_xe}</br> \
+                        Năm dăng ký: {nam_dang_ky}</br> \
+                        Số km đã đi: {so_km_da_di}</br>",
+                        color="#3874b4", icon="🎯"
+                    )
 
 # PREPROCESS TEXT (same as training)
 def clean_text_vn(text):
@@ -140,7 +149,7 @@ def recommend_from_query(query_text, df, vectorizer, tfidf_matrix, top_n=5):
 # ============================================================
 
 def de_xuat_theo_id():
-    ui.centered_text("Đề xuất [n] xe máy theo ID", color="#1f77b4", size="36px")
+    ui.centered_text("Đề xuất xe máy theo ID", color="#1f77b4", size="36px")
     # ui.colored_text("Đề xuất [n] xe máy theo ID", color="#1f77b4", size="32px", bold=True, italic=False)
 
     # Đọc dữ liệu từ file data_motobikes_cleaned.csv        
@@ -358,11 +367,11 @@ def group_xe_theo_dac_diem2():
 
     st.set_page_config(page_title="t-SNE Cluster Visualization", layout="wide")
 
-    st.title("🔍 t-SNE Visualization for Motorbike Clustering")
+    st.title("🔍 Visualization for Motorbike Clustering")
     
     uploaded_file = "./data/data_motobikes_cleaned_content_wt.csv"
     df = pd.read_csv(uploaded_file)    
-    st.write(df.head())
+    # st.write(df.head())
 
     # ==============================
     # 2. Select numeric features

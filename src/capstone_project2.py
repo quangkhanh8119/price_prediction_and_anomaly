@@ -7,6 +7,9 @@ def show():
     # Set page layout    
     UIComponents.set_page_layout(width=960, hide_branding=False)
 
+    # Show logo
+    UIComponents.show_logo_conditional('capstone_project2', width=960, centered=False)
+
     # ============================================================
     # TITLE
     # ============================================================
@@ -170,7 +173,23 @@ content_wt
     st.code("""
 eval_df = evaluate_models(df)
 summarize_evaluation(eval_df)
-    """, language="python")   
+    """, language="python")
+
+    st.markdown("""
+    ### 💡 **Mô hình tốt nhất**
+
+    #### **Content-based Recommendation**
+
+    Dựa trên quá trình thử nghiệm và đánh giá 2 hướng tiếp cận TF-IDF, mô hình mang lại hiệu quả tốt nhất:
+
+    #### ⭐ **Best Model: TF-IDF (Sklearn) + Cosine Similarity**
+    - Độ sắc nét phân biệt nội dung cao  
+    - Tốc độ xử lý nhanh  
+    - Phù hợp dữ liệu mô tả ngắn như xe máy trên Chợ Tốt  
+    - Kết quả gợi ý sát nghĩa hơn so với Gensim TF-IDF  
+
+    **→ Kết luận:** TF-IDF Sklearn là mô hình khuyến nghị chính cho hệ thống gợi ý.
+    """)    
 
     st.write("---")
 
@@ -244,6 +263,21 @@ summarize_evaluation(eval_df)
     - Mô tả phổ biến: xe zin, chính chủ, ít đi
     """, language="python")
     st.write("Hoàn toàn tự động bằng code.")
+
+    st.markdown("""
+    ### 💡 **Mô hình tốt nhất**
+    #### **Market Segmentation (Clustering)**
+
+    Sau nhiều thử nghiệm (KMeans, GMM, Agglomerative, PySpark KMeans), mô hình mang lại kết quả ổn định nhất:
+
+    #### ⭐ **Best Model: KMeans Clustering**
+    - Phân tách nhóm rõ ràng khi dùng PCA 2D  
+    - Hiệu quả tốt trên dữ liệu có chiều giảm (numeric + categorical PCA + TF-IDF PCA)  
+    - Dễ giải thích (Interpretability tốt)  
+    - Tối ưu bằng Silhouette Score và Elbow Method  
+
+    **→ Kết luận:** KMeans là mô hình tối ưu cho bài toán phân cụm thị trường.    
+    """)
 
     st.write("---")
 

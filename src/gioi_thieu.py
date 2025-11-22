@@ -15,6 +15,9 @@ def show():
     # Set page layout    
     ui.set_page_layout(width=960, hide_branding=False)
 
+    # Show logo
+    UIComponents.show_logo_conditional('capstone_project2', width=960, centered=False)
+
     # st.title("🌟 GIỚI THIỆU DỰ ÁN MÔN HỌC")    
     # st.subheader("Phân tích & xây dựng mô hình hóa dữ liệu xe máy đã qua sử dụng – Chợ Tốt")
     ui.centered_title_normal("Phân tích & xây dựng hệ thống mô hình hóa dữ liệu xe máy đã qua sử dụng trên ChợTốt")
@@ -29,6 +32,7 @@ def show():
     ### 👨‍🎓 **Học viên thực hiện**
     - **Nguyễn Quang Khánh**  
     - **Nguyễn Đức Bằng**
+    - Ngày báo cáo: 22/11/2025
 
     ---
     """)
@@ -37,7 +41,7 @@ def show():
     st.markdown("""
     ### 🚀 Tổng Quan Dự Án
     Dự án được triển khai dựa trên bộ dữ liệu thực tế từ **Chợ Tốt**, bao gồm thông tin về hàng chục nghìn tin rao bán xe máy.  
-    Nhóm đã thực hiện 4 bài toán chính nhằm phân tích dữ liệu, xây dựng mô hình học máy và đề xuất giải pháp thực tế.
+    Nhóm đã thực hiện **4 bài toán** chính nhằm phân tích dữ liệu, xây dựng mô hình học máy và đề xuất giải pháp thực tế.
     """)
 
     st.markdown("---")

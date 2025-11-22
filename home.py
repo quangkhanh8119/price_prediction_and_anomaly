@@ -9,8 +9,9 @@ st.set_page_config(
 
 # Set page layout
 UIComponents.set_page_width_centered(width=960)
+# UIComponents.show_logo_conditional('home', width=960, centered=False)
 
-st.image("assets/logo.jpg", width=960)
+# st.image("assets/logo.jpg", width=960)
 
 # MAP: Tên menu → file python
 MENU = {

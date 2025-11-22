@@ -138,8 +138,8 @@ class UIComponents:
         """
         st.markdown(
             f"""
-            <div style="text-align: center; padding: 16px;">
-                <h1 style="color: {color}; font-size: {size}; margin-bottom: 3px;">{title}</h1>                
+            <div style="text-align: center; padding: 3px;">
+                <h1 style="color: {color}; font-size: {size}; margin-bottom: 0px;">{title}</h1>                
             </div>
             """,
             unsafe_allow_html=True
@@ -808,6 +808,38 @@ class UIComponents:
     # ============================================================
     # PAGE LAYOUT
     # ============================================================
+    @staticmethod
+    def show_logo_conditional(page_name: str, width: int = 960, centered: bool = True):
+        """
+        Hiển thị logo có điều kiện
+        
+        Args:
+            page_name: Tên trang hiện tại ('home', 'gioithieu', etc.)
+            width: Chiều rộng logo
+            centered: Căn giữa
+        """
+        import os
+        from pathlib import Path
+        
+        # Danh sách trang được hiển thị logo
+        pages_with_logo = ['home', 'gioithieu', 'capstone_project1', 'capstone_project2']
+        
+        # Kiểm tra trang có trong danh sách không
+        if page_name.lower() not in pages_with_logo:
+            return
+        
+        # Kiểm tra file logo có tồn tại không
+        if not os.path.exists("./assets/logo.jpg"):
+            st.warning("⚠️ Logo không tìm thấy!")
+            return
+        
+        # Hiển thị logo
+        if centered:
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.image("./assets/logo.jpg", width=width)            
+        else:
+            st.image("./assets/logo.jpg", width=width)
     
     # Page style: set fixed width and centered
     @staticmethod

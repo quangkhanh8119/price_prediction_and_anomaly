@@ -92,7 +92,7 @@ def predict_price(info, model, features=None, inverse_log=True):
     return float(np.expm1(pred) if inverse_log else pred)
 
 def du_doan_gia_xe():    
-    ui.centered_text("Dự đoán giá xe máy cũ", color="#1f77b4", size="36px")
+    ui.centered_text("Dự đoán giá xe máy", color="#1f77b4", size="36px")
 
     
     # Đọc dữ liệu từ file data_motobikes_cleaned.csv        
@@ -101,9 +101,9 @@ def du_doan_gia_xe():
     global df_data
     df_data = df  # gán dataframe toàn cục
 
-    st.write("##### Dữ liệu mẫu sau khi tiền xử lý")
+    # st.write("##### Dữ liệu mẫu sau khi tiền xử lý")
     # ['thuong_hieu','dong_xe','nam_dang_ky','so_km_da_di','tinh_trang','loai_xe','dung_tich_xe','xuat_xu']    
-    st.dataframe(df[['gia','tieu_de','thuong_hieu','dong_xe','loai_xe','dung_tich_xe','so_km_da_di','nam_dang_ky']].head())
+    # st.dataframe(df[['gia','tieu_de','thuong_hieu','dong_xe','loai_xe','dung_tich_xe','so_km_da_di','nam_dang_ky']].head())
 
     # Load model từ file pickle
     model_regression_best = load_model("./models/model_regression_best.pkl")
@@ -211,8 +211,8 @@ def phat_hien_xe_bat_thuong():
     # Đọc dữ liệu từ df_data toàn cục        
     df = df_data
 
-    st.write("##### Dữ liệu mẫu sau khi tiền xử lý")
-    st.dataframe(df[['gia','tieu_de','thuong_hieu','dong_xe','loai_xe','dung_tich_xe','so_km_da_di','nam_dang_ky']].head())
+    # st.write("##### Dữ liệu mẫu sau khi tiền xử lý")
+    # st.dataframe(df[['gia','tieu_de','thuong_hieu','dong_xe','loai_xe','dung_tich_xe','so_km_da_di','nam_dang_ky']].head())
 
     # Load model từ file pickle    
     model_best = load_model("./models/model_regression_best.pkl")
