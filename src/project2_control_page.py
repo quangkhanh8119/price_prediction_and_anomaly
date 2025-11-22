@@ -362,7 +362,7 @@ def group_xe_theo_loai_gia():
 
     num_cols = st.multiselect(
         "Chọn các cột numeric để phân cụm:",
-        df.columns.tolist(),
+        default_num_cols,
         default=default_num_cols
     )
 
@@ -421,8 +421,8 @@ def group_xe_theo_loai_gia():
 
     cluster_desc = {
         0: "🔴 **Cụm 0: Xe cao cấp – còn mới – ít đi – giá cao**",
-        1: "🟢 **Cụm 1: Xe bình dân – quá cũ – đi nhiều – giá rẻ**",
-        2: "🔵 **Cụm 2: Xe bình dân – còn mới – đi ít – giá tầm trung**",
+        1: "🟢 **Cụm 1: Xe bình dân – còn mới – đi ít – giá tầm trung**",
+        2: "🔵 **Cụm 2: Xe bình dân – quá cũ – đi nhiều – giá rẻ**",
     }
 
     for cid in range(3):
