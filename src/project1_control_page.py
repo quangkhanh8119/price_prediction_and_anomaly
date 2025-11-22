@@ -25,7 +25,7 @@ def show():
         # st.title("Điều hướng")
         selected_page = st.radio(                        
             "Chọn chức năng:",
-            ["Dự đoán giá xe", "Phát hiện xe bất thường", "Thống kê xe bất thường", "Quản lý Tin Bất Thường"]
+            ["Dự đoán giá xe", "Phát hiện xe bất thường", "Thống kê xe bất thường", "Quản lý tin bất thường"]
         )
     
     # Routing logic (Gọi hàm tương ứng theo lựa chọn)
@@ -37,7 +37,7 @@ def show():
         # list_xe_bat_thuong()
         xe_bat_thuong_dashboard()
         # main_price_dashboard()
-    elif selected_page == "Quản lý Tin Bất Thường":        
+    elif selected_page == "Quản lý tin bất thường":        
         quan_ly_tin_bat_thuong()
 
 # ============================================================
@@ -132,8 +132,7 @@ def xe_bat_thuong_dashboard():
 
     st.markdown(f"""
         ### 🔎 Tổng Quan Bất Thường
-        - ##### Tổng số xe bất thường: `{len(df_anom)} xe`
-        - ##### Tỉ lệ bất thường: `{len(df_anom) / len(df_results) * 100:.2f}%`
+        - ##### Tổng số xe bất thường: `{len(df_anom)} xe`        
     """)
 
     col1, col2 = st.columns(2)
@@ -291,6 +290,7 @@ def admin_page(df_results):
                 st.success("Đã lưu đánh dấu admin.")
             except Exception as e:
                 st.error(f"Lưu log thất bại: {e}")
+            st.dataframe(log_df.head())
 
 # =============================================================
 
