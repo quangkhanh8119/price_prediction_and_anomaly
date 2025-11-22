@@ -4,6 +4,10 @@ import numpy as np
 import pickle
 import os
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from wordcloud import WordCloud
 from ui.ui_components import UIComponents
 
 # Set page config
@@ -30,7 +34,8 @@ def show():
     elif selected_page == "Phát hiện xe bất thường":
         phat_hien_xe_bat_thuong()
     elif selected_page == "Danh sách xe bất thường":
-        list_xe_bat_thuong()
+        # list_xe_bat_thuong()
+        xe_bat_thuong_dashboard()
 
 # ============================================================
 # HÀM XỬ LÝ DỰ ĐOÁN GIÁ XE 
@@ -90,6 +95,85 @@ def predict_price(info, model, features=None, inverse_log=True):
         raise RuntimeError(f"Predict failed: {e}\nInput:\n{df}")
 
     return float(np.expm1(pred) if inverse_log else pred)
+
+# Hàm phân trang
+def paginate_dataframe(df, rows_per_page=15):
+    total_rows = len(df)
+    total_pages = (total_rows // rows_per_page) + (1 if total_rows % rows_per_page != 0 else 0)
+
+    page = st.number_input(
+        "Trang", min_value=1, max_value=total_pages, value=1, step=1
+    )
+
+    start_idx = (page - 1) * rows_per_page
+    end_idx = start_idx + rows_per_page
+
+    return df.iloc[start_idx:end_idx], total_pages, page
+
+
+# ==============================
+# DASHBOARD ANOMALY FULL
+# ==============================
+def xe_bat_thuong_dashboard():
+    # st.title("Dashboard Phát Hiện Xe Máy Bất Thường")
+    ui.centered_text("Thống kê danh sách xe máy bất thường", color="#1f77b4", size="36px")
+
+    # Load dữ liệu bất thường
+    df_results = pd.read_csv("./data/results_with_anomalies.csv")
+
+    if "anomaly_flag" not in df_results:
+        st.error("File results_with_anomalies.csv không chứa trường anomaly_flag!")
+        return
+    
+    df_anom = df_results[df_results["anomaly_flag"] == 1]
+
+    st.markdown(f"""
+        ### 🔎 Tổng Quan Bất Thường
+        - **Tổng số xe bất thường:** `{len(df_anom)}`
+        - **Tỉ lệ bất thường:** `{len(df_anom) / len(df_results) * 100:.2f}%`
+    """)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        # HISTOGRAM ANOMALY SCORE
+        st.write("##### Phân bố điểm bất thường (Anomaly Score)")
+
+        fig, ax = plt.subplots(figsize=(7,4))
+        sns.histplot(df_anom["anomaly_score"], kde=True, bins=20, ax=ax)
+        ax.set_xlabel("Anomaly Score (0 - 100)")
+        st.pyplot(fig)
+
+        #st.divider()
+    
+    with col2:    
+        # SCATTER (ACTUAL vs PREDICTED)    
+        st.write("##### Scatter Plot: Giá thực tế vs Giá dự đoán")
+
+        fig, ax = plt.subplots(figsize=(6,6))
+        ax.scatter(df_anom["gia_pred"], df_anom["gia_actual"], alpha=0.6)
+
+        # đường y=x
+        m = max(df_anom["gia_pred"].max(), df_anom["gia_actual"].max())
+        ax.plot([0, m], [0, m], linestyle="--", color="red")
+
+        ax.set_xlabel("Giá dự đoán (VNĐ)")
+        ax.set_ylabel("Giá thực tế (VNĐ)")
+        ax.set_title("Giá bất thường nằm xa đường y = x")
+        st.pyplot(fig)
+
+    st.divider()
+    
+    # DANH SÁCH XE BẤT THƯỜNG (PHÂN TRANG)
+    st.subheader("📋 Danh sách xe bất thường")
+
+    df_page, total_pages, current_page = paginate_dataframe(df_anom, rows_per_page=15)
+
+    st.write(f"Trang {current_page}/{total_pages}")
+    st.dataframe(df_page[['thuong_hieu','dong_xe','nam_dang_ky','so_km_da_di','dung_tich_xe','xuat_xu', 
+                          'gia_actual','gia_pred','residual','residual_z','outside_p10p90','p10','p90', 
+                          'iso_score_raw','lof_score_raw','resid_flag_cheap','resid_flag_expensive',
+                          'resid_score_raw','resid_score','iso_score','lof_score','p10p90_score','anomaly_score']])    
 
 def du_doan_gia_xe():    
     ui.centered_text("Dự đoán giá xe máy", color="#1f77b4", size="36px")
@@ -176,11 +260,13 @@ def du_doan_gia_xe():
                 ["Số km đã đi", so_km_da_di],
                 ["Năm đăng ký", nam_dang_ky],
                 # In đậm giá dự đoán                
-                ["**Giá dự đoán**", f"**{gia_du_doan:,.0f} VND**"],
+                ["**💰 Giá dự đoán**", f"⭐ {gia_du_doan:,.0f} VND ⭐"],
+                ["**Gợi ý** giá bán nhanh", f"**{gia_du_doan*0.95:,.0f} VND**"],
+                ["**Gợi ý** giá có lợi nhuận tối đa", f"**{gia_du_doan*1.05:,.0f} VND**"],
+                ["**Gợi ý** khoảng giá hợp lý", f"**{gia_du_doan*0.9:,.0f} - {gia_du_doan*1.1:,.0f} VND**"],
             ],            
             centered=True
         )
-    
 
 # ============================================================
 # HÀM XỬ LÝ PHÁT HIỆN XE BẤT THƯỜNG 
@@ -202,7 +288,7 @@ def detect_anomaly(model, info):
         'gia_du_doan': pred,
         'residual': residual,
         'z_score': z,
-        'ket_luan': 'Giá Bất thường' if is_anomaly else 'Giá Bình thường'
+        'ket_luan': '👎 Giá Bất thường' if is_anomaly else '👍 Giá Bình thường'
     }
 
 def phat_hien_xe_bat_thuong():    
@@ -295,47 +381,4 @@ def list_xe_bat_thuong():
 
     st.write(f"##### Tổng số xe máy bất thường: {tong_so_xe_bat_thuong} xe")    
     # st.dataframe(data_anomalies, height=2600)
-    st.dataframe(data_anomalies, height=960)
-
-    """
-    # Load dữ liệu
-    df_results = pd.read_csv("./data/results_with_anomalies.csv")    
-    data_anomalies = df_results[df_results['anomaly_flag'] == 1].reset_index(drop=True)
-
-    tong_so_xe_bat_thuong = len(data_anomalies)
-    st.write(f"##### Tổng số xe máy bất thường: **{tong_so_xe_bat_thuong} xe**")
-
-    # ------------------------------
-    # Pagination setup
-    # ------------------------------
-    items_per_page = 12
-    total_pages = math.ceil(len(data_anomalies) / items_per_page)
-
-    # Lưu trạng thái trang hiện tại
-    if "current_page" not in st.session_state:
-        st.session_state.current_page = 1
-
-    # Nút chuyển trang
-    col1, col2, col3 = st.columns([1, 2, 1])
-
-    with col1:
-        if st.button("⬅️ Previous") and st.session_state.current_page > 1:
-            st.session_state.current_page -= 1
-
-    with col3:
-        if st.button("Next ➡️") and st.session_state.current_page < total_pages:
-            st.session_state.current_page += 1
-
-    # Tính vị trí hiển thị
-    start_idx = (st.session_state.current_page - 1) * items_per_page
-    end_idx = start_idx + items_per_page
-    df_page = data_anomalies.iloc[start_idx:end_idx]
-
-    # Hiển thị
-    st.write(f"Trang **{st.session_state.current_page} / {total_pages}**")
-    st.dataframe(df_page, height=700, use_container_width=False)
-    """
-
-   
-# ============================================================
-    
+    st.dataframe(data_anomalies, height=600)

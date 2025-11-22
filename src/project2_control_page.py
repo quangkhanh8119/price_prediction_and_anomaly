@@ -5,8 +5,9 @@ import pickle
 import os
 import re
 
-from sklearn.metrics.pairwise import cosine_similarity
 import matplotlib.pyplot as plt
+
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
@@ -95,8 +96,8 @@ def display_recommended_bikes(recommended_bikes, cols=5):
                         content=f"<b>{bike['tieu_de']}</b></br></br><i>{truncated_description}</i></br></br> \
                         Thương hiệu: {thuong_hieu}</br> \
                         Dòng xe: {dong_xe}</br> \
-                        Năm dăng ký: {nam_dang_ky}</br> \
-                        Số km đã đi: {so_km_da_di}</br>",
+                        Năm dăng ký: {nam_dang_ky:.0f}</br> \
+                        Số km đã đi: {so_km_da_di:.0f}</br>",
                         color="#3874b4", icon="🎯"
                     )
 
