@@ -6,6 +6,7 @@ import os
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+import math
 
 from ui.ui_components import UIComponents
 
@@ -24,7 +25,7 @@ def show():
         # st.title("Điều hướng")
         selected_page = st.radio(                        
             "Chọn chức năng:",
-            ["Dự đoán giá xe", "Phát hiện xe bất thường", "Danh sách xe bất thường"]
+            ["Dự đoán giá xe", "Phát hiện xe bất thường", "Thống kê xe bất thường", "Quản lý Tin Bất Thường"]
         )
     
     # Routing logic (Gọi hàm tương ứng theo lựa chọn)
@@ -32,9 +33,12 @@ def show():
         du_doan_gia_xe()
     elif selected_page == "Phát hiện xe bất thường":
         phat_hien_xe_bat_thuong()
-    elif selected_page == "Danh sách xe bất thường":
+    elif selected_page == "Thống kê xe bất thường":
         # list_xe_bat_thuong()
         xe_bat_thuong_dashboard()
+        # main_price_dashboard()
+    elif selected_page == "Quản lý Tin Bất Thường":        
+        quan_ly_tin_bat_thuong()
 
 # ============================================================
 # HÀM XỬ LÝ DỰ ĐOÁN GIÁ XE 
@@ -128,8 +132,8 @@ def xe_bat_thuong_dashboard():
 
     st.markdown(f"""
         ### 🔎 Tổng Quan Bất Thường
-        - **Tổng số xe bất thường:** `{len(df_anom)}`
-        - **Tỉ lệ bất thường:** `{len(df_anom) / len(df_results) * 100:.2f}%`
+        - ##### Tổng số xe bất thường: `{len(df_anom)} xe`
+        - ##### Tỉ lệ bất thường: `{len(df_anom) / len(df_results) * 100:.2f}%`
     """)
 
     col1, col2 = st.columns(2)
@@ -173,6 +177,122 @@ def xe_bat_thuong_dashboard():
                           'gia_actual','gia_pred','residual','residual_z','outside_p10p90','p10','p90', 
                           'iso_score_raw','lof_score_raw','resid_flag_cheap','resid_flag_expensive',
                           'resid_score_raw','resid_score','iso_score','lof_score','p10p90_score','anomaly_score']])    
+    
+    st.divider()
+
+def quan_ly_tin_bat_thuong():
+    ui.centered_text("🛡️ Admin - Quản lý tin bất thường", color="#1f77b4", size="36px")
+
+    # Load dữ liệu bất thường
+    df_results = pd.read_csv("./data/results_with_anomalies.csv")
+    admin_page(df_results)
+
+def paginate(df, page, page_size=15):
+    """
+    Phân trang dataframe df.
+    page: số trang (1-based)
+    page_size: số dòng mỗi trang
+    return: df_page
+    """
+    if df is None or len(df) == 0:
+        return df
+
+    total_rows = len(df)
+    total_pages = math.ceil(total_rows / page_size)
+
+    # đảm bảo page hợp lệ
+    if page < 1:
+        page = 1
+    if page > total_pages:
+        page = total_pages
+
+    start = (page - 1) * page_size
+    end = start + page_size
+    return df.iloc[start:end]
+
+# ---------------------------
+# ADMIN PAGE
+# ---------------------------
+def admin_page(df_results):
+    # st.title("🛡️ Admin – Quản lý Tin Bất Thường")
+    st.markdown("Quản lý, lọc, duyệt và ghi log các tin rao bất thường")
+
+    # basic KPI
+    total = len(df_results)
+    anomalies = df_results[df_results["anomaly_flag"] == 1]
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Tổng tin", total)
+    col2.metric("Tổng tin bất thường", len(anomalies))
+    col3.metric("Tỉ lệ", f"{len(anomalies)/max(1,total)*100:.2f}%")
+
+    st.markdown("---")
+    st.header("Bộ lọc")
+    brand_list = df_results["thuong_hieu"].dropna().unique().tolist() if "thuong_hieu" in df_results.columns else []
+    chosen_brands = st.multiselect("Thương hiệu", options=brand_list)
+    score_min = st.slider("Anomaly score tối thiểu", 0, 100, 10)
+    anomaly_types = st.multiselect("Loại bất thường", options=["Rẻ bất thường","Đắt bất thường","Khác"], default=None)
+
+    # compute type column if not present
+    if "type" not in df_results.columns:
+        def _type(r):
+            try:
+                if r.get("residual",0) < 0: return "Rẻ bất thường"
+                if r.get("residual",0) > 0: return "Đắt bất thường"
+            except: pass
+            return "Khác"
+        df_results["type"] = df_results.apply(_type, axis=1)
+
+    df_filtered = df_results.copy()
+    if chosen_brands:
+        df_filtered = df_filtered[df_filtered["thuong_hieu"].isin(chosen_brands)]
+    df_filtered = df_filtered[df_filtered["anomaly_score"] >= score_min]
+    if anomaly_types:
+        df_filtered = df_filtered[df_filtered["type"].isin(anomaly_types)]
+
+    st.write(f"Tin tìm thấy: **{len(df_filtered)}**")
+
+    # pagination controls
+    page_size = 15
+    total_pages = math.ceil(len(df_filtered)/page_size) if len(df_filtered)>0 else 1
+    if "admin_page_num" not in st.session_state:
+        st.session_state.admin_page_num = 1
+    cols = st.columns([1,1,1,6])
+    with cols[0]:
+        if st.button("⟵ Prev"):
+            if st.session_state.admin_page_num > 1:
+                st.session_state.admin_page_num -= 1
+    with cols[1]:
+        if st.button("Next ⟶"):
+            if st.session_state.admin_page_num < total_pages:
+                st.session_state.admin_page_num += 1
+    with cols[2]:
+        if st.button("Reset"):
+            st.session_state.admin_page_num = 1
+
+    page = st.session_state.admin_page_num
+    df_page = paginate(df_filtered.reset_index(drop=True), page, page_size)
+    st.write(f"Trang {page}/{total_pages}")
+    st.dataframe(df_page, use_container_width=True, height=420)
+
+    st.markdown("---")
+    st.header("Duyệt tin chi tiết")
+    idx = st.number_input("Index trong bảng (index trang)", min_value=0, max_value=max(0,len(df_page)-1), value=0)
+    if len(df_page)>0:
+        row = df_page.iloc[int(idx)].to_dict()
+        st.json(row)
+        label = st.radio("Đánh dấu tin này:", ["Hợp lệ","Không hợp lệ","Lừa đảo"])
+        remark = st.text_area("Ghi chú (tuỳ chọn)")
+        if st.button("Lưu đánh dấu"):
+            # Lưu nhãn & ghi log (append csv)
+            log_row = {**row, "admin_label": label, "admin_remark": remark}
+            try:
+                log_df = pd.DataFrame([log_row])
+                log_df.to_csv("./data/anomaly_admin_log.csv", mode="a", header=not pd.io.common.file_exists("./data/anomaly_admin_log.csv"), index=False)
+                st.success("Đã lưu đánh dấu admin.")
+            except Exception as e:
+                st.error(f"Lưu log thất bại: {e}")
+
+# =============================================================
 
 def du_doan_gia_xe():    
     ui.centered_text("Dự đoán giá xe máy", color="#1f77b4", size="36px")
