@@ -7,7 +7,6 @@ import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from wordcloud import WordCloud
 from ui.ui_components import UIComponents
 
 # Set page config
