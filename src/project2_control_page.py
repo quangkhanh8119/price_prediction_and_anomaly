@@ -6,6 +6,7 @@ import os
 import re
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
@@ -39,7 +40,9 @@ def show():
     elif selected_page == "Đề xuất xe theo yêu cầu":
         de_xuat_theo_query()
     elif selected_page == "Nhóm xe theo đặc điểm":
-        group_xe_theo_dac_diem()
+        # group_xe_theo_dac_diem()
+        group_xe_theo_loai_gia()
+
 # ============================================================
 # HÀM XỬ LÝ DỰ ĐOÁN GIÁ XE 
 # ============================================================
@@ -338,3 +341,100 @@ def group_xe_theo_dac_diem():
     for c in sorted(df["cluster_demo"].unique()):
         st.markdown(f"### 🔹 Cluster {c}")
         st.dataframe(df[df["cluster_demo"] == c].head(5)[["tieu_de", "thuong_hieu", "dong_xe", "gia"]])
+
+def group_xe_theo_loai_gia():
+    # st.set_page_config(page_title="📊 Demo Phân Cụm Xe Máy", layout="wide")
+
+    st.title("Phân Cụm Xe Máy theo phân khúc giá")
+
+    # ============================
+    # 1. Load dataset
+    # ============================
+    data_path = "./data/data_motobikes_cleaned_content_wt.csv"
+    df = pd.read_csv(data_path)
+
+    # ============================
+    # 2. Chọn các cột dùng để phân cụm
+    # ============================
+    st.subheader("🔧 Lựa chọn đặc trưng phân cụm")
+
+    default_num_cols = ["gia", "so_km_da_di", "nam_dang_ky"]
+
+    num_cols = st.multiselect(
+        "Chọn các cột numeric để phân cụm:",
+        df.columns.tolist(),
+        default=default_num_cols
+    )
+
+    if len(num_cols) < 2:
+        st.error("⚠️ Cần chọn ít nhất 2 đặc trưng!")
+        st.stop()
+
+    # ============================
+    # 3. Chuẩn hóa dữ liệu
+    # ============================
+    X = df[num_cols].fillna(0)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # ============================
+    # 4. KMeans (k = 3)
+    # ============================
+    st.subheader("Với KMeans (k = 3)")
+    k = 3
+
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    df["cluster"] = kmeans.fit_predict(X_scaled)
+
+    # ============================
+    # 5. PCA để trực quan
+    # ============================
+    pca = PCA(n_components=2, random_state=42)
+    pca_comp = pca.fit_transform(X_scaled)
+    df["pca1"] = pca_comp[:, 0]
+    df["pca2"] = pca_comp[:, 1]
+
+    # ============================
+    # 6. Vẽ biểu đồ PCA Scatter
+    # ============================
+    st.subheader("📈 PCA Scatter Visualization")
+
+    plt.figure(figsize=(10, 7))
+    sns.scatterplot(
+        x=df["pca1"],
+        y=df["pca2"],
+        hue=df["cluster"].astype(str),
+        palette="tab10",
+        s=40,
+        alpha=0.8
+    )
+    plt.title("PCA Scatter Plot – KMeans (k=3)")
+    plt.xlabel("PCA 1")
+    plt.ylabel("PCA 2")
+
+    st.pyplot(plt)
+
+    # ============================
+    # 7. Mô tả từng cụm theo yêu cầu bạn đưa ra
+    # ============================
+    st.subheader("📌 Mô tả từng cụm (Theo business logic)")
+
+    cluster_desc = {
+        0: "🔴 **Cụm 0: Xe cao cấp – còn mới – ít đi – giá cao**",
+        1: "🟢 **Cụm 1: Xe bình dân – quá cũ – đi nhiều – giá rẻ**",
+        2: "🔵 **Cụm 2: Xe bình dân – còn mới – đi ít – giá tầm trung**",
+    }
+
+    for cid in range(3):
+        st.markdown(cluster_desc[cid])
+        st.dataframe(
+            df[df["cluster"] == cid][["tieu_de", "thuong_hieu", "dong_xe", "gia", "so_km_da_di", "nam_dang_ky"]].head(5)
+        )
+
+    # ============================
+    # 8. Thống kê cụm
+    # ============================
+    st.subheader("📊 Thống kê trung bình từng cụm")
+
+    stats = df.groupby("cluster")[num_cols].mean().round(2)
+    st.dataframe(stats)
