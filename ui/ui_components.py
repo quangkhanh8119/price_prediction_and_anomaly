@@ -445,6 +445,68 @@ class UIComponents:
         )
     
     @staticmethod
+    def styled_table_small(headers: List[str], rows: List[List[str]], 
+                    centered: bool = False):
+        """
+        Bảng với styling
+        
+        Args:
+            headers: Danh sách header
+            rows: Danh sách rows (list of lists)
+            centered: Căn giữa nội dung
+        """
+        align = "center" if centered else "left"
+        
+        header_html = "".join([f"<th>{h}</th>" for h in headers])
+        rows_html = ""
+        for row in rows:
+            row_html = "".join([f"<td>{cell}</td>" for cell in row])
+            rows_html += f"<tr>{row_html}</tr>"
+        
+        st.markdown(
+            f"""
+            <style>
+            .custom-table {{
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                border-radius: 8px;
+                overflow: hidden;
+            }}
+            .custom-table th {{
+                background-color: #2b8acc;
+                color: white;
+                padding: 6px;
+                text-align: {align};
+                font-weight: bold;
+            }}
+            .custom-table td {{
+                padding: 7px 15px;
+                text-align: {align};
+                border-bottom: 1px solid #ddd;
+            }}
+            .custom-table tr:nth-child(even) {{
+                background-color: #f8f9fa;
+            }}
+            .custom-table tr:hover {{
+                background-color: #e9ecef;
+            }}
+            </style>
+            
+            <table class="custom-table">
+                <thead>
+                    <tr>{header_html}</tr>
+                </thead>
+                <tbody>
+                    {rows_html}
+                </tbody>
+            </table>
+            """,
+            unsafe_allow_html=True
+        )
+    
+    @staticmethod
     def definition_list(items: Dict[str, str]):
         """
         Danh sách định nghĩa (key: value)
@@ -901,6 +963,38 @@ class UIComponents:
             /* Tìm class chứa nội dung chính của Streamlit (thường là block-container) */
             .block-container {
                 max-width: 960px; /* Cố định chiều rộng tối đa */
+                padding-left: 1rem;
+                padding-right: 1rem;
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+                margin: 0 auto; /* Căn giữa khối div */
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    
+    @staticmethod
+    def set_page_layout_wide(width: int = 1200, hide_branding: bool = True):
+        """
+        Set page layout với width cố định và căn giữa
+        
+        Args:
+            width: Chiều rộng mong muốn (pixels)
+            hide_branding: Ẩn Streamlit branding
+        """
+        branding_css = """
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        """ if hide_branding else ""
+                
+        st.markdown(
+            """
+            <style>
+            /* Tìm class chứa nội dung chính của Streamlit (thường là block-container) */
+            .block-container {
+                max-width: 1200px; /* Cố định chiều rộng tối đa */
                 padding-left: 1rem;
                 padding-right: 1rem;
                 padding-top: 2rem;
